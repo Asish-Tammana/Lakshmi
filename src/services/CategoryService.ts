@@ -9,6 +9,7 @@ const defaultCategories = [
     { name: 'Utilities', icon: 'flash', isExpense: true, isDefault: true },
     { name: 'Salary', icon: 'cash', isExpense: false, isDefault: true },
     { name: 'Entertainment', icon: 'movie', isExpense: true, isDefault: true },
+    { name: 'Friends', icon: 'account-group', isExpense: true, isDefault: true },
     { name: 'Uncategorized', icon: 'help-circle', isExpense: true, isDefault: true },
 ];
 

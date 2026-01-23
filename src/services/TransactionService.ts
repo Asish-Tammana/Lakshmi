@@ -44,5 +44,18 @@ export const TransactionService = {
             if (curr.type === 'credit') return acc - curr.amount;
             return acc;
         }, 0);
+    },
+
+    async updateTransactionCategory(transaction: Transaction, categoryId: string) {
+        await database.write(async () => {
+            await transaction.update(record => {
+                record.categoryId = categoryId;
+                record.status = 'categorized';
+            });
+        });
+
+        // Learn this mapping for future transactions
+        const { MerchantMappingService } = require('./MerchantMappingService');
+        await MerchantMappingService.setMapping(transaction.merchantName, categoryId);
     }
 };

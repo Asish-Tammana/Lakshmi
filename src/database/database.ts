@@ -5,6 +5,7 @@ import { schema } from './schema';
 import Transaction from './Transaction';
 import Category from './Category';
 import Friend from './Friend';
+import MerchantMapping from './MerchantMapping';
 
 const adapter = new SQLiteAdapter({
     schema,
@@ -25,5 +26,6 @@ export const database = new Database({
         Transaction,
         Category,
         Friend,
+        MerchantMapping,
     ],
 });

@@ -1,7 +1,7 @@
 import { appSchema, tableSchema } from '@nozbe/watermelondb';
 
 export const schema = appSchema({
-    version: 1,
+    version: 2,
     tables: [
         tableSchema({
             name: 'transactions',
@@ -34,6 +34,15 @@ export const schema = appSchema({
             columns: [
                 { name: 'name', type: 'string' },
                 { name: 'vpa_patterns', type: 'string' }, // JSON stringified array of VPA patterns
+                { name: 'created_at', type: 'number' },
+                { name: 'updated_at', type: 'number' },
+            ],
+        }),
+        tableSchema({
+            name: 'merchant_mappings',
+            columns: [
+                { name: 'merchant_name', type: 'string', isIndexed: true },
+                { name: 'category_id', type: 'string', isIndexed: true },
                 { name: 'created_at', type: 'number' },
                 { name: 'updated_at', type: 'number' },
             ],
