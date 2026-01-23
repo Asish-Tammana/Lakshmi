@@ -7,6 +7,20 @@ export interface ParsedTransaction {
 }
 
 const BANK_PATTERNS = [
+    // KVB Credit: "Your a/c ... is credited Rs. 100 from Person Name on Date.info :..."
+    {
+        regex: /is\s+credited\s+Rs\.\s*([\d,.]+)\s+from\s+([^.\n]+?)\s+on/i,
+        amountIdx: 1,
+        merchantIdx: 2,
+        type: 'credit',
+    },
+    // KVB Debit: "Your a/c ... is debited Rs. 100 on Date to Merchant info :..."
+    {
+        regex: /is\s+debited\s+Rs\.\s*([\d,.]+)\s+on\s+.*?\s+to\s+([^.\n]+?)\s+info/i,
+        amountIdx: 1,
+        merchantIdx: 2,
+        type: 'debit',
+    },
     // HDFC: "Paid Rs. 500 to Merchant via UPI..."
     {
         regex: /(?:Paid|Sent|Debited|Spent)\s+(?:Rs\.?|INR)\s*([\d,.]+)\s+(?:to|at)\s+([^.\n]+)/i,
