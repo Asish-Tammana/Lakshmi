@@ -1,5 +1,8 @@
 import React from 'react';
+import { LogBox } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+LogBox.ignoreAllLogs(); // Ignore all log notifications
 import { Provider as PaperProvider, MD3LightTheme, MD3DarkTheme } from 'react-native-paper';
 import RootNavigator from './src/navigation/RootNavigator';
 import { CategoryService } from './src/services/CategoryService';
