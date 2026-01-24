@@ -32,6 +32,11 @@ export const TransactionService = {
     },
 
     async getNetSpend(startDate: number, endDate: number) {
+        const stats = await this.getStats(startDate, endDate);
+        return stats.net;
+    },
+
+    async getStats(startDate: number, endDate: number) {
         const txns = await database.get<Transaction>('transactions')
             .query(
                 Q.where('date', Q.between(startDate, endDate)),
@@ -40,10 +45,27 @@ export const TransactionService = {
             .fetch();
 
         return txns.reduce((acc, curr) => {
-            if (curr.type === 'debit') return acc + curr.amount;
-            if (curr.type === 'credit') return acc - curr.amount;
+            if (curr.type === 'debit') {
+                acc.expenses += curr.amount;
+                acc.net += curr.amount;
+            } else if (curr.type === 'credit') {
+                acc.income += curr.amount;
+                acc.net -= curr.amount;
+            }
             return acc;
-        }, 0);
+        }, { income: 0, expenses: 0, net: 0 });
+    },
+
+    async getTodayTransactions() {
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+
+        return await database.get<Transaction>('transactions')
+            .query(
+                Q.where('date', Q.gte(startOfDay.getTime())),
+                Q.sortBy('date', Q.desc)
+            )
+            .fetch();
     },
 
     async updateTransactionCategory(transaction: Transaction, categoryId: string) {
