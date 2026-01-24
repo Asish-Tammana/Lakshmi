@@ -73,20 +73,31 @@ const DashboardScreen = () => {
         <Screen>
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 <View style={styles.header}>
-                    <Text variant="headlineMedium" style={styles.title}>Lakshmi Tracker</Text>
+                    <Text variant="headlineMedium" style={styles.title}>Lakshmi Dashboard</Text>
                 </View>
 
+                {/* Row 1: Final Net spent of this month */}
                 <View style={styles.statsSection}>
-                    <Text variant="titleMedium" style={styles.sectionLabel}>This Month</Text>
+                    <StatCard
+                        title="Net Spent (This Month)"
+                        value={TransactionEngine.formatCurrency(stats.net)}
+                        style={styles.mainStat}
+                        color={theme.colors.primary}
+                    />
+                </View>
+
+                {/* Row 2: Monthly Reversals & Spend */}
+                <View style={styles.statsSection}>
+                    <Text variant="titleSmall" style={styles.sectionLabel}>Month Summary</Text>
                     <View style={styles.row}>
                         <StatCard
-                            title="Income"
+                            title="Total Reversals"
                             value={TransactionEngine.formatCurrency(stats.income)}
                             color="#388E3C"
                             style={styles.halfStat}
                         />
                         <StatCard
-                            title="Expenses"
+                            title="Total Spend"
                             value={TransactionEngine.formatCurrency(stats.expenses)}
                             color="#D32F2F"
                             style={styles.halfStat}
@@ -94,24 +105,26 @@ const DashboardScreen = () => {
                     </View>
                 </View>
 
-                <View style={[styles.statsSection, styles.todaySection]}>
-                    <Text variant="titleMedium" style={styles.sectionLabel}>Today's Summary</Text>
+                {/* Row 3: Today's Reversals & Spend */}
+                <View style={styles.statsSection}>
+                    <Text variant="titleSmall" style={styles.sectionLabel}>Today's Summary</Text>
                     <View style={styles.row}>
                         <StatCard
-                            title="Today's Exp"
-                            value={TransactionEngine.formatCurrency(todayStats.expenses)}
-                            color="#F44336"
+                            title="Today's Reversals"
+                            value={TransactionEngine.formatCurrency(todayStats.income)}
+                            color="#2E7D32"
                             style={styles.halfStat}
                         />
                         <StatCard
-                            title="Net Flow"
-                            value={TransactionEngine.formatCurrency(todayStats.income - todayStats.expenses)}
-                            color={todayStats.income >= todayStats.expenses ? "#2E7D32" : "#C62828"}
+                            title="Today's Spend"
+                            value={TransactionEngine.formatCurrency(todayStats.expenses)}
+                            color="#C62828"
                             style={styles.halfStat}
                         />
                     </View>
                 </View>
 
+                {/* Row 4: Today's activity list */}
                 <View style={styles.listSection}>
                     <Text variant="titleMedium" style={styles.sectionLabel}>Today's Activity</Text>
                     {todayTransactions.length > 0 ? (
@@ -144,15 +157,18 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     statsSection: {
-        marginBottom: 16,
+        marginBottom: 12,
     },
-    todaySection: {
-        marginTop: 8,
+    mainStat: {
+        width: '100%',
     },
     sectionLabel: {
-        marginBottom: 8,
-        opacity: 0.7,
+        marginBottom: 6,
+        opacity: 0.6,
         fontWeight: '600',
+        textTransform: 'uppercase',
+        fontSize: 12,
+        letterSpacing: 0.5,
     },
     row: {
         flexDirection: 'row',
@@ -163,7 +179,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     listSection: {
-        marginTop: 16,
+        marginTop: 8,
     },
     transactionCard: {
         marginBottom: 8,
