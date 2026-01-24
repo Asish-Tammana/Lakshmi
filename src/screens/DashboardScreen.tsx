@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { StyleSheet, View, ScrollView, FlatList } from 'react-native';
 import { Text, Divider, useTheme, Card, Avatar } from 'react-native-paper';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import Screen from '../components/Screen';
 import StatCard from '../components/StatCard';
 import { TransactionService } from '../services/TransactionService';
@@ -10,6 +10,7 @@ import Transaction from '../database/Transaction';
 
 const DashboardScreen = () => {
     const theme = useTheme();
+    const navigation = useNavigation<any>();
     const [stats, setStats] = useState({ income: 0, expenses: 0, net: 0 });
     const [todayStats, setTodayStats] = useState({ income: 0, expenses: 0, net: 0 });
     const [todayTransactions, setTodayTransactions] = useState<Transaction[]>([]);
@@ -42,7 +43,11 @@ const DashboardScreen = () => {
     const renderTransaction = ({ item }: { item: Transaction }) => {
         const isDebit = item.type === 'debit';
         return (
-            <Card style={styles.transactionCard} mode="contained">
+            <Card
+                style={styles.transactionCard}
+                mode="contained"
+                onPress={() => navigation.navigate('TransactionDetails', { transactionId: item.id })}
+            >
                 <Card.Title
                     title={item.merchantName}
                     subtitle={new Date(item.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

@@ -31,6 +31,10 @@ export const TransactionService = {
             .fetch();
     },
 
+    async getTransactionById(id: string) {
+        return await database.get<Transaction>('transactions').find(id);
+    },
+
     async getNetSpend(startDate: number, endDate: number) {
         const stats = await this.getStats(startDate, endDate);
         return stats.net;

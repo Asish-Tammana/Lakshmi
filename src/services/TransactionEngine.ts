@@ -46,16 +46,16 @@ export const TransactionEngine = {
             merchantName: parsed.merchant,
             rawSmsBody: message,
             date: parsed.date,
-            status: categoryName === 'Uncategorized' ? 'uncategorized' : 'categorized',
+            status: 'uncategorized',
         });
 
-        console.log('[TransactionEngine] Transaction saved to DB:', transaction.id);
+        console.log('[TransactionEngine] Transaction saved to DB (uncategorized):', transaction.id);
 
         // Alert user
         await NotificationService.displayTransactionAlert(
             parsed.amount.toString(),
             parsed.merchant,
-            categoryName === 'Uncategorized'
+            true // Always treat as uncategorized for notification purposes
         );
 
         return transaction;

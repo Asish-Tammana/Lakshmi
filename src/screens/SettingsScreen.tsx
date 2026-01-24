@@ -54,6 +54,13 @@ const SettingsScreen = () => {
                     left={props => <List.Icon {...props} icon="tag-multiple" />}
                     onPress={() => navigation.navigate('CategoryManagement')}
                 />
+                <Divider />
+                <List.Item
+                    title="Manage Friends"
+                    description="Link UPI IDs to contact names"
+                    left={props => <List.Icon {...props} icon="account-multiple-plus" />}
+                    onPress={() => navigation.navigate('FriendManagement')}
+                />
             </List.Section>
         </Screen>
     );

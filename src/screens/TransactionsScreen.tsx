@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { StyleSheet, View, FlatList, RefreshControl } from 'react-native';
 import { Text, Searchbar, Card, Avatar, useTheme, ActivityIndicator, Portal, Dialog, List, RadioButton, Button } from 'react-native-paper';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import Screen from '../components/Screen';
 import { TransactionService } from '../services/TransactionService';
 import { TransactionEngine } from '../services/TransactionEngine';
@@ -11,6 +11,7 @@ import Category from '../database/Category';
 
 const TransactionsScreen = () => {
     const theme = useTheme();
+    const navigation = useNavigation<any>();
 
     // Core State
     const [searchQuery, setSearchQuery] = useState('');
@@ -20,9 +21,7 @@ const TransactionsScreen = () => {
     const [uiState, setUiState] = useState({
         loading: true,
         refreshing: false,
-        categorizeVisible: false,
     });
-    const [selectedTxn, setSelectedTxn] = useState<Transaction | null>(null);
 
     const fetchData = useCallback(async () => {
         setUiState(prev => ({ ...prev, loading: true }));
@@ -69,15 +68,6 @@ const TransactionsScreen = () => {
         fetchData();
     }, [fetchData]);
 
-    const handleUpdateCategory = async (categoryId: string) => {
-        if (selectedTxn) {
-            await TransactionService.updateTransactionCategory(selectedTxn, categoryId);
-            setUiState(prev => ({ ...prev, categorizeVisible: false }));
-            setSelectedTxn(null);
-            fetchData();
-        }
-    };
-
     const renderTransaction = ({ item }: { item: Transaction }) => {
         const isDebit = item.type === 'debit';
         const isTransfer = item.type === 'transfer';
@@ -89,8 +79,7 @@ const TransactionsScreen = () => {
                 style={styles.card}
                 mode="contained"
                 onPress={() => {
-                    setSelectedTxn(item);
-                    setUiState(prev => ({ ...prev, categorizeVisible: true }));
+                    navigation.navigate('TransactionDetails', { transactionId: item.id });
                 }}
             >
                 <Card.Title
@@ -154,38 +143,6 @@ const TransactionsScreen = () => {
                     )}
                 />
             )}
-
-            <Portal>
-                <Dialog
-                    visible={uiState.categorizeVisible}
-                    onDismiss={() => setUiState(prev => ({ ...prev, categorizeVisible: false }))}
-                >
-                    <Dialog.Title>Update Category</Dialog.Title>
-                    <Dialog.ScrollArea style={styles.dialogScrollArea}>
-                        <FlatList
-                            data={categoriesList}
-                            keyExtractor={item => item.id}
-                            renderItem={({ item }) => (
-                                <List.Item
-                                    title={item.name}
-                                    left={props => <List.Icon {...props} icon={item.icon} />}
-                                    right={() => (
-                                        <RadioButton
-                                            value={item.id}
-                                            status={selectedTxn?.categoryId === item.id ? 'checked' : 'unchecked'}
-                                            onPress={() => handleUpdateCategory(item.id)}
-                                        />
-                                    )}
-                                    onPress={() => handleUpdateCategory(item.id)}
-                                />
-                            )}
-                        />
-                    </Dialog.ScrollArea>
-                    <Dialog.Actions>
-                        <Button onPress={() => setUiState(prev => ({ ...prev, categorizeVisible: false }))}>Cancel</Button>
-                    </Dialog.Actions>
-                </Dialog>
-            </Portal>
         </Screen>
     );
 };

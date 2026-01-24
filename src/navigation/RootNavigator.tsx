@@ -10,6 +10,8 @@ import TransactionsScreen from '../screens/TransactionsScreen';
 import AnalysisScreen from '../screens/AnalysisScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import CategoryManagementScreen from '../screens/CategoryManagementScreen';
+import FriendManagementScreen from '../screens/FriendManagementScreen';
+import TransactionDetailsScreen from '../screens/TransactionDetailsScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -80,6 +82,22 @@ const RootNavigator = () => {
                     options={{
                         headerShown: true,
                         title: 'Manage Categories'
+                    }}
+                />
+                <Stack.Screen
+                    name="FriendManagement"
+                    component={FriendManagementScreen}
+                    options={{
+                        headerShown: true,
+                        title: 'Manage Friends'
+                    }}
+                />
+                <Stack.Screen
+                    name="TransactionDetails"
+                    component={TransactionDetailsScreen}
+                    options={{
+                        headerShown: true,
+                        title: 'Transaction Details'
                     }}
                 />
             </Stack.Navigator>
