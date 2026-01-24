@@ -1,7 +1,17 @@
-import ReactNativeBiometrics, { BiometryTypes } from 'react-native-biometrics';
+import ReactNativeBiometrics from 'react-native-biometrics';
 import { Alert } from 'react-native';
 
 const rnBiometrics = new ReactNativeBiometrics();
+const SECURITY_PREF_KEY = '@lakshmi_security_enabled';
+
+// Helper to safely get AsyncStorage without crashing at import time
+const getAsyncStorage = () => {
+    try {
+        return require('@react-native-async-storage/async-storage').default;
+    } catch (e) {
+        return null;
+    }
+};
 
 export const SecurityService = {
     async isBiometricsAvailable(): Promise<boolean> {
@@ -14,17 +24,39 @@ export const SecurityService = {
         }
     },
 
+    async isSecurityEnabled(): Promise<boolean> {
+        try {
+            const Storage = getAsyncStorage();
+            if (!Storage) return await this.isBiometricsAvailable();
+
+            const value = await Storage.getItem(SECURITY_PREF_KEY);
+            // Default to true if biometrics are available
+            if (value === null) {
+                return await this.isBiometricsAvailable();
+            }
+            return value === 'true';
+        } catch (error) {
+            return false;
+        }
+    },
+
+    async setSecurityEnabled(enabled: boolean): Promise<void> {
+        try {
+            const Storage = getAsyncStorage();
+            if (!Storage) return;
+            await Storage.setItem(SECURITY_PREF_KEY, enabled.toString());
+        } catch (error) {
+            console.error('Error saving security preference:', error);
+        }
+    },
+
     async authenticate(): Promise<boolean> {
         try {
-            const { available, biometryType } = await rnBiometrics.isSensorAvailable();
+            const { available } = await rnBiometrics.isSensorAvailable();
 
             if (!available) {
-                // If sensor is not available, we might want to fall back to a PIN if implemented
-                // For now, if it's not available, we'll just allow entry or tell the user.
                 console.warn('Biometric sensor not available');
-                return true; // Fallback: allow entry if no biometrics are set up? 
-                // Actually, better to return true if the user hasn't enabled security, but the request was "Implement Security Lock".
-                // Usually, if the hardware isn't there, we can't lock it this way.
+                return true;
             }
 
             const { success } = await rnBiometrics.simplePrompt({

@@ -125,13 +125,13 @@ const TransactionDetailsScreen = () => {
                     <Card.Content>
                         <List.Item
                             title="Date"
-                            description={new Date(transaction.date).toLocaleDateString()}
+                            description={TransactionEngine.formatDate(transaction.date)}
                             left={props => <List.Icon {...props} icon="calendar" />}
                         />
                         <Divider />
                         <List.Item
                             title="Time"
-                            description={new Date(transaction.date).toLocaleTimeString()}
+                            description={TransactionEngine.formatTime(transaction.date)}
                             left={props => <List.Icon {...props} icon="clock-outline" />}
                         />
                         <Divider />

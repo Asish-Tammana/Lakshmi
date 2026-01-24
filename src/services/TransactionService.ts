@@ -98,11 +98,76 @@ export const TransactionService = {
         await MerchantMappingService.setMapping(transaction.merchantName, categoryId);
     },
 
-    async deleteAllTransactions() {
+    async getAnalysisData(monthTimestamp: number) {
+        const date = new Date(monthTimestamp);
+        const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1).getTime();
+        const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59).getTime();
+
+        const txns = await database.get<Transaction>('transactions')
+            .query(
+                Q.where('date', Q.between(startOfMonth, endOfMonth)),
+                Q.where('type', Q.notEq('transfer'))
+            )
+            .fetch();
+
+        // 1. Pie Chart Data (Category-wise)
+        const categoryMap: Record<string, number> = {};
+        txns.forEach(t => {
+            if (t.type === 'debit') {
+                categoryMap[t.categoryId] = (categoryMap[t.categoryId] || 0) + t.amount;
+            }
+        });
+
+        // 2. Line Chart Data (Daily cumulative net spend)
+        const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+        const now = new Date();
+        const isCurrentMonth = date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+        const lastDayToShow = isCurrentMonth ? now.getDate() : daysInMonth;
+
+        const dailySpend: Record<number, number> = {};
+        txns.forEach(t => {
+            const day = new Date(t.date).getDate();
+            if (t.type === 'debit') {
+                dailySpend[day] = (dailySpend[day] || 0) + t.amount;
+            } else if (t.type === 'credit') {
+                dailySpend[day] = (dailySpend[day] || 0) - t.amount;
+            }
+        });
+
+        let cumulative = 0;
+        const trend = [];
+        for (let day = 1; day <= lastDayToShow; day++) {
+            cumulative += (dailySpend[day] || 0);
+            const label = (day === 1 || day === lastDayToShow || day % 5 === 0) ? day.toString() : '';
+            trend.push({
+                value: Math.max(0, Math.round(cumulative)),
+                label: label
+            });
+        }
+
+        return {
+            categoryData: categoryMap,
+            trendData: trend
+        };
+    },
+
+    async resetAllData() {
         await database.write(async () => {
             const txns = await database.get<Transaction>('transactions').query().fetch();
-            const batch = txns.map(t => t.prepareDestroyPermanently());
+            const mappings = await database.get('merchant_mappings').query().fetch();
+            const friends = await database.get('friends').query().fetch();
+
+            const batch = [
+                ...txns.map(t => t.prepareDestroyPermanently()),
+                ...mappings.map(m => m.prepareDestroyPermanently()),
+                ...friends.map(f => f.prepareDestroyPermanently()),
+            ];
+
             await database.batch(...batch);
         });
+
+        // Re-seed categories
+        const { CategoryService } = require('./CategoryService');
+        await CategoryService.seedDefaultCategories();
     }
 };

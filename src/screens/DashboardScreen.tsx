@@ -50,7 +50,7 @@ const DashboardScreen = () => {
             >
                 <Card.Title
                     title={item.merchantName}
-                    subtitle={new Date(item.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    subtitle={TransactionEngine.formatTime(item.date)}
                     left={(props) => (
                         <Avatar.Icon
                             {...props}

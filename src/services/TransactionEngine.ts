@@ -67,5 +67,31 @@ export const TransactionEngine = {
             currency: 'INR',
             maximumFractionDigits: 2,
         }).format(amount);
+    },
+
+    formatCurrencySimple(amount: number): string {
+        try {
+            return amount.toLocaleString('en-IN', { maximumFractionDigits: 0 }).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        } catch (e) {
+            return amount.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+    },
+
+    formatTime(timestamp: number): string {
+        try {
+            return new Date(timestamp).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+        } catch (e) {
+            const d = new Date(timestamp);
+            return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+        }
+    },
+
+    formatDate(timestamp: number): string {
+        try {
+            return new Date(timestamp).toLocaleDateString();
+        } catch (e) {
+            const d = new Date(timestamp);
+            return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+        }
     }
 };

@@ -37,16 +37,22 @@ const AppContent = () => {
       await CategoryService.seedDefaultCategories();
       await NotificationService.scheduleDailyReminder();
 
-      // Trigger biometrics automatically if available
-      const available = await SecurityService.isBiometricsAvailable();
-      if (available) {
-        const success = await SecurityService.authenticate();
-        if (success) {
+      // Trigger biometrics automatically if enabled and available
+      const enabled = await SecurityService.isSecurityEnabled();
+      if (enabled) {
+        const available = await SecurityService.isBiometricsAvailable();
+        if (available) {
+          const success = await SecurityService.authenticate();
+          if (success) {
+            setIsAuthenticated(true);
+          }
+        } else {
+          // If enabled but hardware missing, we let them in for now
+          // (User might have disabled sensor or similar)
           setIsAuthenticated(true);
         }
       } else {
-        // Fallback: If no biometrics available, just let them in for now
-        // In a real app, you'd ask to set up a PIN
+        // Security is explicitly disabled
         setIsAuthenticated(true);
       }
     };

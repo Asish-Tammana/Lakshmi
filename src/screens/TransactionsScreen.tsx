@@ -84,7 +84,7 @@ const TransactionsScreen = () => {
             >
                 <Card.Title
                     title={item.merchantName}
-                    subtitle={`${new Date(item.date).toLocaleDateString()} • ${category?.name || 'Uncategorized'}`}
+                    subtitle={`${TransactionEngine.formatDate(item.date)} • ${category?.name || 'Uncategorized'}`}
                     left={(props) => (
                         <Avatar.Icon
                             {...props}
