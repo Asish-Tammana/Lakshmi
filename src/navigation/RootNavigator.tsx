@@ -9,6 +9,7 @@ import DashboardScreen from '../screens/DashboardScreen';
 import TransactionsScreen from '../screens/TransactionsScreen';
 import AnalysisScreen from '../screens/AnalysisScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import CategoryManagementScreen from '../screens/CategoryManagementScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -73,6 +74,14 @@ const RootNavigator = () => {
                 }}
             >
                 <Stack.Screen name="Main" component={TabNavigator} />
+                <Stack.Screen
+                    name="CategoryManagement"
+                    component={CategoryManagementScreen}
+                    options={{
+                        headerShown: true,
+                        title: 'Manage Categories'
+                    }}
+                />
             </Stack.Navigator>
         </NavigationContainer>
     );

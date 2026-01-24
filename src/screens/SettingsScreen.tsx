@@ -3,9 +3,11 @@ import { StyleSheet, View } from 'react-native';
 import { List, Switch, Text, Divider } from 'react-native-paper';
 import Screen from '../components/Screen';
 import { useAppTheme } from '../theme/ThemeContext';
+import { useNavigation } from '@react-navigation/native';
 
 const SettingsScreen = () => {
     const { themeMode, setThemeMode, isDark } = useAppTheme();
+    const navigation = useNavigation<any>();
 
     return (
         <Screen>
@@ -39,6 +41,18 @@ const SettingsScreen = () => {
                             onValueChange={(val) => setThemeMode(val ? 'system' : isDark ? 'dark' : 'light')}
                         />
                     )}
+                />
+            </List.Section>
+
+            <Divider />
+
+            <List.Section>
+                <List.Subheader>Data Management</List.Subheader>
+                <List.Item
+                    title="Manage Categories"
+                    description="Add or edit your spending categories"
+                    left={props => <List.Icon {...props} icon="tag-multiple" />}
+                    onPress={() => navigation.navigate('CategoryManagement')}
                 />
             </List.Section>
         </Screen>

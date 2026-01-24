@@ -68,6 +68,19 @@ export const TransactionService = {
             .fetch();
     },
 
+    async getRecentTransactions(days: number = 30) {
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - days);
+        thirtyDaysAgo.setHours(0, 0, 0, 0);
+
+        return await database.get<Transaction>('transactions')
+            .query(
+                Q.where('date', Q.gte(thirtyDaysAgo.getTime())),
+                Q.sortBy('date', Q.desc)
+            )
+            .fetch();
+    },
+
     async updateTransactionCategory(transaction: Transaction, categoryId: string) {
         await database.write(async () => {
             await transaction.update(record => {
