@@ -10,18 +10,21 @@ import Category from '../database/Category';
 import { PieChart, LineChart } from 'react-native-gifted-charts';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
+import { useAppTheme } from '../theme/ThemeContext';
+
 const { width } = Dimensions.get('window');
 
 // Premium Color Palettes (similar to modern banking apps)
+// Premium Curated Color Palette
 const CHART_COLORS = [
-    '#3B82F6', // Blue
-    '#6366F1', // Indigo
-    '#8B5CF6', // Violet
-    '#EC4899', // Pink
-    '#F59E0B', // Amber
-    '#10B981', // Emerald
-    '#F97316', // Orange
-    '#06B6D4', // Cyan
+    '#2563EB', // Royal Blue
+    '#7C3AED', // Deep Violet
+    '#DB2777', // Magenta
+    '#059669', // Emerald
+    '#D97706', // Amber
+    '#4F46E5', // Indigo
+    '#0891B2', // Cyan
+    '#EA580C', // Orange
 ];
 
 interface AnalysisData {
@@ -38,6 +41,7 @@ interface PieDataItem {
 
 const AnalysisScreen = () => {
     const theme = useTheme();
+    const { isDark } = useAppTheme();
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [loading, setLoading] = useState(true);
     const [categoryList, setCategoryList] = useState<Category[]>([]);
@@ -113,7 +117,7 @@ const AnalysisScreen = () => {
     return (
         <Screen style={{ backgroundColor: theme.colors.surface }}>
             {/* Header Section (Blue Gradient vibes) */}
-            <View style={[styles.blueHeader, { backgroundColor: '#3b82f6' }]}>
+            <View style={[styles.blueHeader, { backgroundColor: isDark ? theme.colors.elevation.level2 : '#3b82f6' }]}>
                 <View style={styles.topBar}>
                     <IconButton icon="arrow-left" iconColor="white" onPress={() => { }} />
                     <Text variant="titleLarge" style={styles.passbookTitle}>Passbook</Text>
@@ -131,10 +135,10 @@ const AnalysisScreen = () => {
                         </Text>
                     </View>
 
-                    <TouchableOpacity style={styles.monthPill} onPress={() => { }}>
-                        <MaterialCommunityIcons name="calendar-month" size={18} color="#3b82f6" />
-                        <Text style={[styles.monthPillText, { color: '#3b82f6' }]}>{monthLabel}</Text>
-                        <MaterialCommunityIcons name="chevron-down" size={20} color="#3b82f6" />
+                    <TouchableOpacity style={[styles.monthPill, { backgroundColor: isDark ? theme.colors.surfaceVariant : 'white' }]} onPress={() => { }}>
+                        <MaterialCommunityIcons name="calendar-month" size={18} color={isDark ? theme.colors.primary : '#3b82f6'} />
+                        <Text style={[styles.monthPillText, { color: isDark ? theme.colors.primary : '#3b82f6' }]}>{monthLabel}</Text>
+                        <MaterialCommunityIcons name="chevron-down" size={20} color={isDark ? theme.colors.primary : '#3b82f6'} />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -149,47 +153,45 @@ const AnalysisScreen = () => {
                     <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
                         {/* Area Chart Section */}
                         <View style={styles.chartWrapper}>
-                            {LineChart ? (
-                                <LineChart
-                                    data={lineData}
-                                    width={width - 40}
-                                    height={180}
-                                    spacing={width / (lineData.length || 30) - 2}
-                                    color="#3b82f6"
-                                    thickness={4}
-                                    startFillColor="#3b82f6"
-                                    startOpacity={0.2}
-                                    endOpacity={0.01}
-                                    areaChart
-                                    curved
-                                    hideDataPoints
-                                    hideRules
-                                    yAxisThickness={0}
-                                    xAxisThickness={0}
-                                    initialSpacing={0}
-                                    endSpacing={0}
-                                    pointerConfig={{
-                                        pointerStripHeight: 160,
-                                        pointerStripColor: '#3b82f6',
-                                        pointerStripWidth: 2,
-                                        pointerStripUptoDataPoint: true,
-                                        pointerColor: '#3b82f6',
-                                        radius: 5,
-                                        pointerLabelComponent: (items: any) => (
-                                            <View style={styles.pointerLabel}>
-                                                <Text style={styles.pointerText}>
-                                                    ₹{TransactionEngine.formatCurrencySimple(items[0].value)}
-                                                </Text>
-                                            </View>
-                                        ),
-                                    }}
-                                />
-                            ) : null}
+                            <LineChart
+                                data={lineData}
+                                width={width - 40}
+                                height={180}
+                                spacing={width / (lineData.length || 30) - 2}
+                                color={theme.colors.primary}
+                                thickness={4}
+                                startFillColor={theme.colors.primary}
+                                startOpacity={0.2}
+                                endOpacity={0.01}
+                                areaChart
+                                curved
+                                hideDataPoints
+                                hideRules
+                                yAxisThickness={0}
+                                xAxisThickness={0}
+                                initialSpacing={0}
+                                endSpacing={0}
+                                pointerConfig={{
+                                    pointerStripHeight: 160,
+                                    pointerStripColor: theme.colors.primary,
+                                    pointerStripWidth: 2,
+                                    pointerStripUptoDataPoint: true,
+                                    pointerColor: theme.colors.primary,
+                                    radius: 5,
+                                    pointerLabelComponent: (items: any) => (
+                                        <View style={[styles.pointerLabel, { backgroundColor: theme.colors.elevation.level5 }]}>
+                                            <Text style={[styles.pointerText, { color: theme.colors.onSurface }]}>
+                                                ₹{TransactionEngine.formatCurrencySimple(items[0].value)}
+                                            </Text>
+                                        </View>
+                                    ),
+                                }}
+                            />
                             <View style={styles.xAxisLabels}>
-                                <Text style={styles.axisLabel}>01</Text>
-                                <Text style={styles.axisLabel}>07</Text>
-                                <Text style={styles.axisLabel}>14</Text>
-                                <Text style={styles.axisLabel}>21</Text>
+                                <Text style={[styles.axisLabel, { color: theme.colors.onSurfaceVariant }]}>01</Text>
+                                <Text style={[styles.axisLabel, { color: theme.colors.onSurfaceVariant }]}>07</Text>
+                                <Text style={[styles.axisLabel, { color: theme.colors.onSurfaceVariant }]}>14</Text>
+                                <Text style={[styles.axisLabel, { color: theme.colors.onSurfaceVariant }]}>21</Text>
                             </View>
                         </View>
 
@@ -198,10 +200,10 @@ const AnalysisScreen = () => {
                             {['Transactions', 'Insights', 'Payees'].map(tab => (
                                 <TouchableOpacity
                                     key={tab}
-                                    style={[styles.tab, activeTab === tab && styles.activeTab, { borderBottomColor: activeTab === tab ? '#3b82f6' : 'transparent' }]}
+                                    style={[styles.tab, activeTab === tab && styles.activeTab, { borderBottomColor: activeTab === tab ? (isDark ? theme.colors.primary : '#3b82f6') : 'transparent' }]}
                                     onPress={() => setActiveTab(tab)}
                                 >
-                                    <Text style={[styles.tabText, { color: activeTab === tab ? '#3b82f6' : theme.colors.onSurfaceVariant }]}>{tab}</Text>
+                                    <Text style={[styles.tabText, { color: activeTab === tab ? (isDark ? theme.colors.primary : '#3b82f6') : theme.colors.onSurfaceVariant }]}>{tab}</Text>
                                 </TouchableOpacity>
                             ))}
                         </View>
@@ -212,14 +214,17 @@ const AnalysisScreen = () => {
                         <View style={styles.breakdownContainer}>
                             <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>Category Breakdown</Text>
                             <View style={styles.pieRow}>
-                                {PieChart && pieData.length > 0 ? (
+                                {pieData.length > 0 ? (
                                     <View style={styles.pieWrapper}>
                                         <PieChart
                                             data={pieData}
                                             donut
-                                            radius={75}
+                                            radius={80}
                                             innerRadius={60}
                                             showGradient
+                                            sectionAutoFocus
+                                            focusOnPress
+                                            toggleFocusOnPress
                                             centerLabelComponent={() => (
                                                 <View style={styles.pieCenterLabel}>
                                                     <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant }}>Spent</Text>
@@ -395,17 +400,17 @@ const styles = StyleSheet.create({
         marginLeft: 8,
     },
     pointerLabel: {
-        backgroundColor: '#333',
-        paddingHorizontal: 10,
-        paddingVertical: 6,
-        borderRadius: 6,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: 8,
         position: 'absolute',
         top: -45,
         left: -40,
-        elevation: 5,
+        elevation: 8,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
     },
     pointerText: {
-        color: 'white',
         fontSize: 12,
         fontWeight: 'bold',
     },
