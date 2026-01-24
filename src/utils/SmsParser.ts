@@ -1,12 +1,28 @@
 export interface ParsedTransaction {
     amount: number;
-    type: 'debit' | 'credit';
+    type: 'debit' | 'credit' | 'transfer';
     merchant: string;
     vpa?: string;
     date: number;
+    isReversal?: boolean;
 }
 
 const BANK_PATTERNS = [
+    // Reversals/Refunds: "Rs. 100 reversed/refunded to Ac 1234 from Merchant"
+    {
+        regex: /(?:Rs\.?|INR)\s*([\d,.]+)\s+(?:reversed|refunded|returned)\s+.*from\s+([^.\n]+)/i,
+        amountIdx: 1,
+        merchantIdx: 2,
+        type: 'credit',
+        isReversal: true,
+    },
+    // Self-Transfers: "Transferred Rs. 500 to self" or "A/c Transfer Rs. 500 to Ac X1234"
+    {
+        regex: /(?:Transferred|Transfer|A\/c\s+transfer)\s+(?:Rs\.?|INR)\s*([\d,.]+)\s+(?:to|from)\s+(?:self|A\/c.*)/i,
+        amountIdx: 1,
+        merchantIdx: -1, // No merchant for self-transfer
+        type: 'transfer',
+    },
     // KVB Credit: "Your a/c ... is credited Rs. 100 from Person Name on Date.info :..."
     {
         regex: /is\s+credited\s+Rs\.\s*([\d,.]+)\s+from\s+([^.\n]+?)\s+on/i,
@@ -57,13 +73,14 @@ export const SmsParser = {
             const match = message.match(pattern.regex);
             if (match) {
                 const amount = parseFloat(match[pattern.amountIdx].replace(/,/g, ''));
-                const merchant = match[pattern.merchantIdx].trim();
+                const merchant = pattern.merchantIdx === -1 ? 'Self' : (match[pattern.merchantIdx] || 'Unknown').trim();
 
                 return {
                     amount,
-                    type: pattern.type as 'debit' | 'credit',
+                    type: pattern.type as 'debit' | 'credit' | 'transfer',
                     merchant,
                     date: Date.now(),
+                    isReversal: (pattern as any).isReversal || false,
                 };
             }
         }

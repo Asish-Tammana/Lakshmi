@@ -10,6 +10,8 @@ const defaultCategories = [
     { name: 'Salary', icon: 'cash', isExpense: false, isDefault: true },
     { name: 'Entertainment', icon: 'movie', isExpense: true, isDefault: true },
     { name: 'Friends', icon: 'account-group', isExpense: true, isDefault: true },
+    { name: 'Transfer', icon: 'swap-horizontal', isExpense: false, isDefault: true },
+    { name: 'Refund', icon: 'undo', isExpense: false, isDefault: true },
     { name: 'Uncategorized', icon: 'help-circle', isExpense: true, isDefault: true },
 ];
 

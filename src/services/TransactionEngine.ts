@@ -22,8 +22,22 @@ export const TransactionEngine = {
 
         console.log('[TransactionEngine] Parsed transaction:', parsed);
 
-        const category = await CategorizationService.predictCategory(parsed.merchant);
-        const categoryId = category?.id || (await CategoryService.getCategoryByName('Uncategorized'))?.id || '';
+        let categoryId = '';
+        let categoryName = 'Uncategorized';
+
+        if (parsed.type === 'transfer' || parsed.merchant === 'Self') {
+            const transferCategory = await CategoryService.getCategoryByName('Transfer');
+            categoryId = transferCategory?.id || '';
+            categoryName = transferCategory?.name || 'Transfer';
+        } else if (parsed.isReversal) {
+            const refundCategory = await CategoryService.getCategoryByName('Refund');
+            categoryId = refundCategory?.id || '';
+            categoryName = refundCategory?.name || 'Refund';
+        } else {
+            const category = await CategorizationService.predictCategory(parsed.merchant);
+            categoryId = category?.id || (await CategoryService.getCategoryByName('Uncategorized'))?.id || '';
+            categoryName = category?.name || 'Uncategorized';
+        }
 
         const transaction = await TransactionService.addTransaction({
             amount: parsed.amount,
@@ -32,7 +46,7 @@ export const TransactionEngine = {
             merchantName: parsed.merchant,
             rawSmsBody: message,
             date: parsed.date,
-            status: category?.name === 'Uncategorized' ? 'uncategorized' : 'categorized',
+            status: categoryName === 'Uncategorized' ? 'uncategorized' : 'categorized',
         });
 
         console.log('[TransactionEngine] Transaction saved to DB:', transaction.id);
@@ -41,7 +55,7 @@ export const TransactionEngine = {
         await NotificationService.displayTransactionAlert(
             parsed.amount.toString(),
             parsed.merchant,
-            category?.name === 'Uncategorized'
+            categoryName === 'Uncategorized'
         );
 
         return transaction;
