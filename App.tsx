@@ -1,5 +1,5 @@
 import React from 'react';
-import { LogBox } from 'react-native';
+import { LogBox, Platform, PermissionsAndroid } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 LogBox.ignoreAllLogs(); // Ignore all log notifications
@@ -13,6 +13,18 @@ const AppContent = () => {
   const { theme } = useAppTheme();
 
   React.useEffect(() => {
+    const requestPermissions = async () => {
+      if (Platform.OS === 'android') {
+        const granted = await PermissionsAndroid.requestMultiple([
+          PermissionsAndroid.PERMISSIONS.RECEIVE_SMS,
+          PermissionsAndroid.PERMISSIONS.READ_SMS,
+          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+        ]);
+        console.log('Permissions status:', granted);
+      }
+    };
+
+    requestPermissions();
     CategoryService.seedDefaultCategories();
     NotificationService.scheduleDailyReminder();
   }, []);

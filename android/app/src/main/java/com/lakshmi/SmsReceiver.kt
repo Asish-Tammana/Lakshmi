@@ -8,19 +8,28 @@ import android.util.Log
 
 class SmsReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
+        Log.d("LakshmiSms", "onReceive triggered with action: ${intent.action}")
+
         if (intent.action == Telephony.Sms.Intents.SMS_RECEIVED_ACTION) {
             val messages = Telephony.Sms.Intents.getMessagesFromIntent(intent)
+            Log.d("LakshmiSms", "Number of messages: ${messages.size}")
+            
             for (message in messages) {
                 val messageBody = message.messageBody
                 val sender = message.displayOriginatingAddress
                 
-                Log.d("SmsReceiver", "SMS received from $sender: $messageBody")
+                Log.d("LakshmiSms", "SMS received from $sender: $messageBody")
                 
-                // Start Headless JS Task
                 val serviceIntent = Intent(context, LakshmiHeadlessTaskService::class.java)
                 serviceIntent.putExtra("message", messageBody)
                 serviceIntent.putExtra("sender", sender)
-                context.startService(serviceIntent)
+                
+                try {
+                    context.startService(serviceIntent)
+                    Log.d("LakshmiSms", "Headless service start signal sent")
+                } catch (e: Exception) {
+                    Log.e("LakshmiSms", "Critical: Failed to start Headless task: ${e.message}")
+                }
             }
         }
     }

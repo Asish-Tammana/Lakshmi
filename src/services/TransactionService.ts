@@ -57,5 +57,13 @@ export const TransactionService = {
         // Learn this mapping for future transactions
         const { MerchantMappingService } = require('./MerchantMappingService');
         await MerchantMappingService.setMapping(transaction.merchantName, categoryId);
+    },
+
+    async deleteAllTransactions() {
+        await database.write(async () => {
+            const txns = await database.get<Transaction>('transactions').query().fetch();
+            const batch = txns.map(t => t.prepareDestroyPermanently());
+            await database.batch(...batch);
+        });
     }
 };

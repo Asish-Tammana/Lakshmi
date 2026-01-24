@@ -6,8 +6,21 @@ import { NotificationService } from './NotificationService';
 
 export const TransactionEngine = {
     async processIncomingSms(message: string) {
+        console.log('[TransactionEngine] Processing message:', message);
+
+        if (message.trim().toUpperCase() === 'DELETE TESTING DATA') {
+            console.log('[TransactionEngine] Delete command detected. Clearing all transactions...');
+            await TransactionService.deleteAllTransactions();
+            return null;
+        }
+
         const parsed = SmsParser.parse(message);
-        if (!parsed) return null;
+        if (!parsed) {
+            console.log('[TransactionEngine] Message not recognized as a transaction.');
+            return null;
+        }
+
+        console.log('[TransactionEngine] Parsed transaction:', parsed);
 
         const category = await CategorizationService.predictCategory(parsed.merchant);
         const categoryId = category?.id || (await CategoryService.getCategoryByName('Uncategorized'))?.id || '';
@@ -21,6 +34,8 @@ export const TransactionEngine = {
             date: parsed.date,
             status: category?.name === 'Uncategorized' ? 'uncategorized' : 'categorized',
         });
+
+        console.log('[TransactionEngine] Transaction saved to DB:', transaction.id);
 
         // Alert user
         await NotificationService.displayTransactionAlert(

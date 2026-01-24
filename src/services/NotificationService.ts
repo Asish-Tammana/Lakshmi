@@ -2,23 +2,35 @@ import notifee, { AndroidImportance, TriggerType, TimestampTrigger } from '@noti
 
 export const NotificationService = {
     async displayTransactionAlert(amount: string, merchant: string, isUncategorized: boolean) {
-        // Create a channel (required for Android)
-        const channelId = await notifee.createChannel({
-            id: 'transactions',
-            name: 'Transactions',
-            importance: AndroidImportance.HIGH,
-        });
+        try {
+            console.log(`[NotificationService] Displaying alert: ${merchant} - ₹${amount}`);
 
-        await notifee.displayNotification({
-            title: isUncategorized ? 'Uncategorized Transaction' : 'New Transaction',
-            body: `₹${amount} spent at ${merchant}. ${isUncategorized ? 'Tap to categorize.' : 'Recorded in Lakshmi.'}`,
-            android: {
-                channelId,
-                pressAction: {
-                    id: 'default',
+            // Create a channel (required for Android)
+            const channelId = await notifee.createChannel({
+                id: 'transaction_alerts',
+                name: 'Transaction Alerts',
+                importance: AndroidImportance.HIGH,
+                vibration: true,
+            });
+
+            // Display the notification
+            await notifee.displayNotification({
+                title: isUncategorized ? '🔍 New Uncategorized Expense' : '💰 Transaction Recorded',
+                body: `₹${amount} at ${merchant}. ${isUncategorized ? 'Tap to categorize.' : 'View details.'}`,
+                android: {
+                    channelId,
+                    importance: AndroidImportance.HIGH,
+                    smallIcon: 'ic_launcher', // Standard android icon
+                    color: '#4CAF50',
+                    pressAction: {
+                        id: 'default',
+                    },
                 },
-            },
-        });
+            });
+            console.log('[NotificationService] Notification triggered successfully');
+        } catch (error) {
+            console.error('[NotificationService] Failed to display notification:', error);
+        }
     },
 
     async scheduleDailyReminder() {
