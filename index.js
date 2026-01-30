@@ -6,20 +6,19 @@ import { AppRegistry } from 'react-native';
 import App from './App';
 import { name as appName } from './app.json';
 import { TransactionEngine } from './src/services/TransactionEngine';
+import { SmsParser } from './src/utils/SmsParser';
 
 const SmsHandlingTask = async (taskData) => {
     try {
-        console.log('[HeadlessTask] Signal received! Data:', JSON.stringify(taskData));
-        const { message } = taskData;
-        if (!message) {
-            console.warn('[HeadlessTask] No message content found in taskData!');
-            return;
-        }
-        console.log('[HeadlessTask] Message content:', message);
+        const { message, sender } = taskData;
+        console.log('[SMS START] New Message from:', sender);
+        console.log('[SMS BODY]:', message);
+
+        if (!message) return;
+
         await TransactionEngine.processIncomingSms(message);
-        console.log('[HeadlessTask] Task completed successfully');
     } catch (error) {
-        console.error('[HeadlessTask] CRITICAL ERROR:', error);
+        console.error('[SMS ERROR]:', error);
     }
 };
 
